@@ -1,0 +1,21 @@
+### CreateUser
+POST http://localhost:2000/chat/users
+Content-Type: application/json
+
+{
+  "name": "hu"
+}
+
+### GetUser
+GET http://localhost:2000/chat/users/102
+Accept: application/json
+
+### Ask
+POST http://localhost:2000/chat/users/100/ask
+Content-Type: application/json
+
+{
+  "text": "golang"
+}
+
+

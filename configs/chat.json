@@ -1,0 +1,12 @@
+{
+  "listen": "0.0.0.0:2000",
+  "logger": {
+    "dir": "/tmp",
+    "file": "chat.log",
+    "count": 5,
+    "size": 20,
+    "unit": "MB",
+    "level": "info",
+    "compress": 1
+  }
+}
