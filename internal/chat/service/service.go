@@ -72,11 +72,12 @@ func (s *ChatServiceImpl) Ask(ctx context.Context, in *chatpb.AskRequest) (*chat
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	if _, ok := s.users[in.Id]; !ok {
+	user, ok := s.users[in.Id]
+	if !ok {
 		return nil, status.Errorf(codes.NotFound, "user[id=%d]", in.Id)
 	}
 
-	ans := fmt.Sprintf("hello %d, %s is good.", in.Id, in.Text)
+	ans := fmt.Sprintf("hello %d, %s is good.", user.Name, in.Text)
 
 	return &chatpb.AskResponse{Text: ans}, nil
 }

@@ -2,7 +2,6 @@ package hello
 
 import (
 	"testing"
-	"time"
 )
 
 func fib(n int) int {
@@ -18,14 +17,8 @@ func benchmarkFib(i int, b *testing.B) {
 	}
 }
 
-// -run=<func name>: go test -run=Fib40
-func TestFib40(t *testing.T) {
-	start := time.Now()
-	ans := fib(40)
-	t.Logf("ans: %d, spend: %vns", ans, time.Now().Sub(start).Nanoseconds())
-}
-
-// -bench=<regex expression>: go test -bench=Fib*
+// test单个程序：-run=<func name> 如go test -run=Fib40
+// bench正则表达式：-bench=<regex expression> 如go test -bench=Fib*
 // -benchtime=<basic benchmark time>: go test -bench=Fib40 -benchtime=5s
 func BenchmarkFib1(b *testing.B)  { benchmarkFib(1, b) }
 func BenchmarkFib2(b *testing.B)  { benchmarkFib(2, b) }

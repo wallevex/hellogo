@@ -7,9 +7,8 @@ import (
 )
 
 type User struct {
-	Id   int
-	Name string
-	Age  int
+	Id   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 func (u *User) SayHello(str string) string {
@@ -18,8 +17,8 @@ func (u *User) SayHello(str string) string {
 
 func TestReflect(t *testing.T) {
 	user := User{
+		Id:   1,
 		Name: "zs",
-		Age:  38,
 	}
 	v := reflect.ValueOf(&user)
 
@@ -35,4 +34,11 @@ func TestSetValue(t *testing.T) {
 	v.FieldByName("Name").Set(reflect.ValueOf("张三"))
 
 	fmt.Println(user)
+}
+
+func TestType(t *testing.T) {
+	user := &User{}
+	typ := reflect.TypeOf(user).Elem()
+	tag := typ.Field(0).Tag.Get("json")
+	fmt.Println(tag)
 }
