@@ -2,6 +2,7 @@ package main
 
 type Config struct {
 	Listen string `json:"listen"`
+	Debug  string `json:"debug"`
 	Logger Logger `json:"logger"`
 }
 

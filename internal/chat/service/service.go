@@ -3,14 +3,18 @@ package service
 import (
 	"context"
 	"fmt"
-	"sync"
-
 	"google.golang.org/grpc/codes"
 	_ "google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-
 	chatpb "hellogo/api/chat"
+	"hellogo/internal/chat/service/algo"
+	"sync"
+)
+
+const (
+	defaultID   = 100
+	defaultName = "default"
 )
 
 type ChatServiceImpl struct {
@@ -26,8 +30,8 @@ func NewChatServiceImpl() *ChatServiceImpl {
 		mu: new(sync.RWMutex),
 		users: map[int64]*chatpb.User{
 			100: {
-				Id:   100,
-				Name: "default",
+				Id:   defaultID,
+				Name: defaultName,
 			},
 		},
 		lastID: 101,
@@ -56,9 +60,12 @@ func (s *ChatServiceImpl) CreateUser(ctx context.Context, in *chatpb.CreateUserR
 }
 
 func (s *ChatServiceImpl) DeleteUser(ctx context.Context, in *chatpb.DeleteUserRequest) (*emptypb.Empty, error) {
+	if in.Id == defaultID {
+		return nil, status.Errorf(codes.PermissionDenied, "prohibited from deleting default user")
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
 	_, ok := s.users[in.Id]
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "user[id=%d]", in.Id)
@@ -77,7 +84,8 @@ func (s *ChatServiceImpl) Ask(ctx context.Context, in *chatpb.AskRequest) (*chat
 		return nil, status.Errorf(codes.NotFound, "user[id=%d]", in.Id)
 	}
 
-	ans := fmt.Sprintf("hello %d, %s is good.", user.Name, in.Text)
+	res := algo.Fibo(in.N)
+	text := fmt.Sprintf("hello %s, fibo(%d) is %d.", user.Name, in.N, res)
 
-	return &chatpb.AskResponse{Text: ans}, nil
+	return &chatpb.AskResponse{Text: text}, nil
 }

@@ -9,13 +9,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	grpc_logging "hellogo/pkg/grpc-middleware/logging"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
 
 	chatpb "hellogo/api/chat"
@@ -41,8 +40,12 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Unmarshal", string(buf), err)
 		os.Exit(3)
 	}
+	if conf.Logger.Dir == "" {
+		conf.Logger.Dir = os.TempDir()
+	}
 
 	go StartServices(conf)
+	go Debug(conf.Debug)
 
 	if err := log.SetLogger("",
 		conf.Logger.Dir,
@@ -60,6 +63,7 @@ func main() {
 	log.Warn("receive signal", (<-ch).String())
 }
 
+// TODO: 端口复用换成cmux
 func StartServices(conf *Config) {
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
@@ -68,21 +72,19 @@ func StartServices(conf *Config) {
 		grpc.MaxRecvMsgSize(math.MaxInt32-1),
 		grpc.MaxSendMsgSize(math.MaxInt32-1),
 	)
-	chatImpl := chatsrv.NewChatServiceImpl()
-	chatpb.RegisterChatServiceServer(grpcServer, chatImpl)
+	chatServer := chatsrv.NewChatServiceImpl()
+	chatpb.RegisterChatServiceServer(grpcServer, chatServer)
 
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	mux := runtime.NewServeMux()
-
-	err := chatpb.RegisterChatServiceHandlerServer(ctx, mux, chatImpl)
+	gwMux := runtime.NewServeMux()
+	err := chatpb.RegisterChatServiceHandlerServer(ctx, gwMux, chatServer)
 	if err != nil {
 		panic(err)
 	}
 
-	h2s := &http2.Server{}
+	// HTTP和gRPC服务端口复用
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -92,15 +94,15 @@ func StartServices(conf *Config) {
 			return
 		}
 
-		if r.ProtoMajor == 2 {
-			grpcServer.ServeHTTP(w, r)
-			return
+		if r.ProtoMajor == 2 && strings.HasPrefix(
+			r.Header.Get("Content-Type"), "application/grpc") {
+			grpcServer.ServeHTTP(w, r) // gRPC请求
+		} else {
+			gwMux.ServeHTTP(w, r) // HTTP请求
 		}
-
-		mux.ServeHTTP(w, r)
 	})
 	log.Infof("chat server listen on %s", conf.Listen)
-	if err := http.ListenAndServe(conf.Listen, h2c.NewHandler(handler, h2s)); err != nil {
+	if err := http.ListenAndServe(conf.Listen, handler); err != nil {
 		panic(err)
 	}
 }

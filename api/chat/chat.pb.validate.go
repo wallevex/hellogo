@@ -498,7 +498,7 @@ func (m *AskRequest) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for Text
+	// no validation rules for N
 
 	if len(errors) > 0 {
 		return AskRequestMultiError(errors)

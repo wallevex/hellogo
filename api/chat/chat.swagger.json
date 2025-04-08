@@ -141,8 +141,9 @@
             "schema": {
               "type": "object",
               "properties": {
-                "text": {
-                  "type": "string"
+                "n": {
+                  "type": "string",
+                  "format": "int64"
                 }
               }
             }

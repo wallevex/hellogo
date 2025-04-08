@@ -1,21 +1,28 @@
-### CreateUser
-POST http://localhost:2000/chat/users
-Content-Type: application/json
-
-{
-  "name": "hu"
-}
-
 ### GetUser
-GET http://localhost:2000/chat/users/102
+GET http://{{host}}:2000/chat/users/100
 Accept: application/json
 
-### Ask
-POST http://localhost:2000/chat/users/100/ask
+### CreateUser
+POST http://{{host}}:2000/chat/users
 Content-Type: application/json
 
 {
-  "text": "golang"
+"name": "hu"
+}
+
+### DeleteUser
+DELETE http://{{host}}:2000/chat/users/100
+Content-Type: application/json
+
+{
+}
+
+### Ask
+POST http://{{host}}:2000/chat/users/100/ask
+Content-Type: application/json
+
+{
+  "n": "42"
 }
 
 

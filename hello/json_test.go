@@ -2,8 +2,6 @@ package hello
 
 import (
 	"encoding/json"
-	"sync"
-	"sync/atomic"
 	"testing"
 )
 
@@ -30,22 +28,4 @@ func TestMarshal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-}
-
-func newGoRoutine(wg sync.WaitGroup, i *int64) {
-	defer wg.Done()
-	atomic.AddInt64(i, 1)
-	return
-}
-
-func TestR(t *testing.T) {
-	var wg sync.WaitGroup
-
-	ans := int64(0)
-	for i := 0; i < 3; i++ {
-		wg.Add(1)
-		go newGoRoutine(wg, &ans)
-	}
-	wg.Wait()
-	recover()
 }

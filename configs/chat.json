@@ -1,7 +1,8 @@
 {
   "listen": "0.0.0.0:2000",
+  "debug": "0.0.0.0:2001",
   "logger": {
-    "dir": "/tmp",
+    "dir": "",
     "file": "chat.log",
     "count": 5,
     "size": 20,
