@@ -1,23 +1,43 @@
 package main
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
-	"sync"
+	"io"
+	"io/ioutil"
+	"net/http"
 )
 
 func main() {
-	var wg sync.WaitGroup
-	semaphore := make(chan struct{}, 3)
-	for i := 0; i < 10; i++ {
-		semaphore <- struct{}{}
-		wg.Add(1)
-		go func(i int) {
-			defer func() {
-				<-semaphore
-				wg.Done()
-			}()
-			fmt.Printf("hello world %d\n", i)
-		}(i)
+	// 加载服务端的自签名证书
+	caCert, err := ioutil.ReadFile("./ssl/server.crt")
+	if err != nil {
+		panic(err)
 	}
-	wg.Wait()
+
+	// 创建 CA 池并添加自签名证书
+	caPool := x509.NewCertPool()
+	caPool.AppendCertsFromPEM(caCert)
+
+	// TLS 配置使用自定义 CA 池
+	tlsConfig := &tls.Config{
+		RootCAs: caPool,
+	}
+
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: tlsConfig,
+		},
+	}
+
+	// 请求
+	resp, err := client.Get("https://192.168.1.24:2000/chat/users/100")
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	fmt.Println("Response:", string(body))
 }

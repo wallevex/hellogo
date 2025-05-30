@@ -57,7 +57,6 @@ func main() {
 		conf.Logger.Compress); err != nil {
 		return
 	}
-
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	log.Warn("receive signal", (<-ch).String())
@@ -102,7 +101,10 @@ func StartServices(conf *Config) {
 		}
 	})
 	log.Infof("chat server listen on %s", conf.Listen)
-	if err := http.ListenAndServe(conf.Listen, handler); err != nil {
+	//if err := http.ListenAndServe(conf.Listen, handler); err != nil {
+	//	panic(err)
+	//}
+	if err := http.ListenAndServeTLS(conf.Listen, "../../ssl/server.crt", "../../ssl/server.key", handler); err != nil {
 		panic(err)
 	}
 }
