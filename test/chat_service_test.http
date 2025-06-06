@@ -2,6 +2,10 @@
 GET http://{{host}}:2000/chat/users/100
 Accept: application/json
 
+### SearchUsers
+GET http://{{host}}:2000/chat/users/search/ali
+Accept: application/json
+
 ### CreateUser
 POST http://{{host}}:2000/chat/users
 Content-Type: application/json

@@ -5,6 +5,11 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.30.0"
 	"math"
 	"net/http"
 	"os"
@@ -26,8 +31,42 @@ var (
 	c = flag.String("c", "../../configs/chat.json", "config file")
 )
 
+func initTracer() func() {
+	// 创建 Jaeger exporter，指向本地 Jaeger UI
+	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(
+		jaeger.WithEndpoint("http://192.168.3.3:14268/api/traces"),
+	))
+	if err != nil {
+		panic(err)
+	}
+
+	res, _ := resource.New(context.Background(),
+		resource.WithAttributes(
+			semconv.ServiceName("hellogo-user-service"), // ✅ 你的服务名
+		),
+	)
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithResource(res),
+		sdktrace.WithBatcher(exp),
+	)
+	otel.SetTracerProvider(tp)
+
+	fmt.Println("init otel...")
+
+	// 返回一个关闭函数（主函数 defer 调用）
+	return func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			panic(err)
+		}
+	}
+}
+
 func main() {
 	flag.Parse()
+
+	shutdown := initTracer()
+	defer shutdown()
 
 	buf, err := os.ReadFile(*c)
 	if err != nil {
@@ -72,14 +111,17 @@ func StartServices(conf *Config) {
 		grpc.MaxRecvMsgSize(math.MaxInt32-1),
 		grpc.MaxSendMsgSize(math.MaxInt32-1),
 	)
-	chatServer := chatsrv.NewChatServiceImpl()
+	chatServer, err := chatsrv.NewChatServiceImpl()
+	if err != nil {
+		panic(err)
+	}
 	chatpb.RegisterChatServiceServer(grpcServer, chatServer)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	gwMux := runtime.NewServeMux()
-	err := chatpb.RegisterChatServiceHandlerServer(ctx, gwMux, chatServer)
+	err = chatpb.RegisterChatServiceHandlerServer(ctx, gwMux, chatServer)
 	if err != nil {
 		panic(err)
 	}

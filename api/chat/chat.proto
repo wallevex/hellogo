@@ -13,12 +13,19 @@ import "google/protobuf/empty.proto";
 message User {
     int64  id   = 1 [(google.api.field_behavior) = OUTPUT_ONLY];
     string name = 2;
+    int64  age  = 3;
 }
 
 service ChatService {
     rpc GetUser(GetUserRequest) returns (User) {
         option (google.api.http) = {
             get: "/chat/users/{id}"
+        };
+    }
+
+    rpc SearchUsers(SearchUsersRequest) returns (SearchUsersResponse) {
+        option (google.api.http) = {
+            get: "/chat/users/search/{name}"
         };
     }
 
@@ -45,6 +52,14 @@ service ChatService {
 
 message GetUserRequest {
     int64 id = 1;
+}
+
+message SearchUsersRequest {
+    string name = 1;
+}
+
+message SearchUsersResponse {
+    repeated User users = 1;
 }
 
 message CreateUserRequest {

@@ -48,6 +48,36 @@
         ]
       }
     },
+    "/chat/users/search/{name}": {
+      "get": {
+        "operationId": "ChatService_SearchUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/SearchUsersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Status"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ChatService"
+        ]
+      }
+    },
     "/chat/users/{id}": {
       "get": {
         "operationId": "ChatService_GetUser",
@@ -173,6 +203,18 @@
         }
       }
     },
+    "SearchUsersResponse": {
+      "type": "object",
+      "properties": {
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/User"
+          }
+        }
+      }
+    },
     "Status": {
       "type": "object",
       "properties": {
@@ -202,6 +244,10 @@
         },
         "name": {
           "type": "string"
+        },
+        "age": {
+          "type": "string",
+          "format": "int64"
         }
       }
     }

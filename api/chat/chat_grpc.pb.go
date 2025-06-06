@@ -22,10 +22,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ChatService_GetUser_FullMethodName    = "/hellogo.api.chat.ChatService/GetUser"
-	ChatService_CreateUser_FullMethodName = "/hellogo.api.chat.ChatService/CreateUser"
-	ChatService_DeleteUser_FullMethodName = "/hellogo.api.chat.ChatService/DeleteUser"
-	ChatService_Ask_FullMethodName        = "/hellogo.api.chat.ChatService/Ask"
+	ChatService_GetUser_FullMethodName     = "/hellogo.api.chat.ChatService/GetUser"
+	ChatService_SearchUsers_FullMethodName = "/hellogo.api.chat.ChatService/SearchUsers"
+	ChatService_CreateUser_FullMethodName  = "/hellogo.api.chat.ChatService/CreateUser"
+	ChatService_DeleteUser_FullMethodName  = "/hellogo.api.chat.ChatService/DeleteUser"
+	ChatService_Ask_FullMethodName         = "/hellogo.api.chat.ChatService/Ask"
 )
 
 // ChatServiceClient is the client API for ChatService service.
@@ -33,6 +34,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChatServiceClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error)
+	SearchUsers(ctx context.Context, in *SearchUsersRequest, opts ...grpc.CallOption) (*SearchUsersResponse, error)
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Ask(ctx context.Context, in *AskRequest, opts ...grpc.CallOption) (*AskResponse, error)
@@ -49,6 +51,15 @@ func NewChatServiceClient(cc grpc.ClientConnInterface) ChatServiceClient {
 func (c *chatServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
 	err := c.cc.Invoke(ctx, ChatService_GetUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chatServiceClient) SearchUsers(ctx context.Context, in *SearchUsersRequest, opts ...grpc.CallOption) (*SearchUsersResponse, error) {
+	out := new(SearchUsersResponse)
+	err := c.cc.Invoke(ctx, ChatService_SearchUsers_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +98,7 @@ func (c *chatServiceClient) Ask(ctx context.Context, in *AskRequest, opts ...grp
 // for forward compatibility
 type ChatServiceServer interface {
 	GetUser(context.Context, *GetUserRequest) (*User, error)
+	SearchUsers(context.Context, *SearchUsersRequest) (*SearchUsersResponse, error)
 	CreateUser(context.Context, *CreateUserRequest) (*User, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error)
 	Ask(context.Context, *AskRequest) (*AskResponse, error)
@@ -99,6 +111,9 @@ type UnimplementedChatServiceServer struct {
 
 func (UnimplementedChatServiceServer) GetUser(context.Context, *GetUserRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+}
+func (UnimplementedChatServiceServer) SearchUsers(context.Context, *SearchUsersRequest) (*SearchUsersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchUsers not implemented")
 }
 func (UnimplementedChatServiceServer) CreateUser(context.Context, *CreateUserRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
@@ -136,6 +151,24 @@ func _ChatService_GetUser_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChatServiceServer).GetUser(ctx, req.(*GetUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChatService_SearchUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchUsersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChatServiceServer).SearchUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChatService_SearchUsers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChatServiceServer).SearchUsers(ctx, req.(*SearchUsersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -204,6 +237,10 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUser",
 			Handler:    _ChatService_GetUser_Handler,
+		},
+		{
+			MethodName: "SearchUsers",
+			Handler:    _ChatService_SearchUsers_Handler,
 		},
 		{
 			MethodName: "CreateUser",
