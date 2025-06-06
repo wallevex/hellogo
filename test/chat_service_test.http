@@ -1,5 +1,5 @@
 ### GetUser
-GET http://{{host}}:2000/chat/users/100
+GET https://{{host}}:2000/chat/users/100
 Accept: application/json
 
 ### SearchUsers
@@ -7,7 +7,7 @@ GET http://{{host}}:2000/chat/users/search/ali
 Accept: application/json
 
 ### CreateUser
-POST http://{{host}}:2000/chat/users
+POST https://{{host}}:2000/chat/users
 Content-Type: application/json
 
 {
@@ -15,14 +15,14 @@ Content-Type: application/json
 }
 
 ### DeleteUser
-DELETE http://{{host}}:2000/chat/users/100
+DELETE https://{{host}}:2000/chat/users/100
 Content-Type: application/json
 
 {
 }
 
 ### Ask
-POST http://{{host}}:2000/chat/users/100/ask
+POST https://{{host}}:2000/chat/users/100/ask
 Content-Type: application/json
 
 {
