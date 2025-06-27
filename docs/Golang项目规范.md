@@ -4,6 +4,7 @@
 
 1. 项目结构规范参考 [Standard Go Project Layout](https://github.com/golang-standards/project-layout)
 2. 高频JSON序列化反序列化使用 [easyjson](https://github.com/mailru/easyjson)
+3. 配置文件使用TOML
 3. 判断型函数统一命名为IsCorrectXXX
 4. 描述性的修饰词放前面，数量/聚合/统计词放后面
 

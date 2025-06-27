@@ -2,13 +2,12 @@ package kvs
 
 import (
 	"context"
+	"hellogo/pkg/x/kvs/driver"
 	"strings"
 	"sync"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"hellogo/pkg/kvs/driver"
 )
 
 var (

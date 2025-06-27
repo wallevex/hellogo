@@ -2,10 +2,9 @@ package grpc_logging
 
 import (
 	"context"
+	"hellogo/pkg/x/log"
 
 	"google.golang.org/grpc"
-
-	"hellogo/pkg/log"
 )
 
 func PayloadUnaryServerInterceptor(log log.Logger) grpc.UnaryServerInterceptor {

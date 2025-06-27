@@ -2,13 +2,12 @@ package file
 
 import (
 	"context"
+	"hellogo/pkg/x/kvs"
+	"hellogo/pkg/x/kvs/driver"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"hellogo/pkg/kvs"
-	"hellogo/pkg/kvs/driver"
 )
 
 func init() {
