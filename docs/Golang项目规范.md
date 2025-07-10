@@ -18,7 +18,7 @@
 ## API设计规范
 
 1. 参考 [Google API设计指南](https://cloud.google.com/apis/design?hl=zh-cn) 和 [API Improvement Proposals ](https://aip.bybutter.com/general)
-2. Parmas参数用下划线格式，JSON Body里用小驼峰格式
+2. API路径用小写和中划线，Params参数和JSON Body里的参数统一用小驼峰格式
 
 ## MySQL规范
 
@@ -27,3 +27,6 @@
 3. 不要直接进行物理删除，要使用delete_at进行软删除，然后再统一回收
 4. 使用sqlx+squirrel，尽量不要用orm
 5. 如果字段较多可以用orm生成表结构
+
+## 部署规范
+1. Debug端口统一在HTTP端口上加上10000
